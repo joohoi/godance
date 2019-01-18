@@ -50,5 +50,6 @@ Usage of godance:
 
 ## Installation
 
+ - [Download](https://github.com/joohoi/godance/releases/latest) a prebuilt binary from [releases page](https://github.com/joohoi/godance/releases/latest), unpack and run!
  - If you have go compiler installed: `go get github.com/joohoi/godance`
 
