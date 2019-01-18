@@ -71,7 +71,7 @@ func main() {
 	var cliconf CLIConfig
 	flag.StringVar(&cliconf.host, "h", "", "Target host")
 	flag.IntVar(&cliconf.port, "p", 445, "Target port")
-	flag.IntVar(&cliconf.threads, "t", 20, "Number of threads")
+	flag.IntVar(&cliconf.threads, "t", 10, "Number of threads")
 	flag.StringVar(&cliconf.userFile, "u", "", "User wordlist")
 	flag.StringVar(&cliconf.pwdFile, "w", "", "Password list")
 	flag.StringVar(&cliconf.domain, "d", "", "Domain")
