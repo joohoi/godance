@@ -2,16 +2,19 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/stacktitan/smb/smb"
 )
 
 type Runner struct {
-	counter int
-	running bool
-	conf    *Config
+	counter   int
+	running   bool
+	conf      *Config
+	startTime time.Time
 }
 
 func NewRunner(conf *Config) Runner {
@@ -34,6 +37,8 @@ func (r *Runner) Start() {
 	fmt.Println(SEP)
 
 	var wg sync.WaitGroup
+	wg.Add(1)
+	go r.runProgress(&wg)
 
 	limiter := make(chan bool, r.conf.threads)
 	for r.conf.passwds.Next() {
@@ -56,6 +61,39 @@ func (r *Runner) Start() {
 	wg.Wait()
 }
 
+func (r *Runner) runProgress(wg *sync.WaitGroup) {
+	defer wg.Done()
+	r.startTime = time.Now()
+	totalProgress := r.conf.users.Total() * r.conf.passwds.Total()
+	for r.counter <= totalProgress {
+		r.updateProgress()
+		if r.counter == totalProgress {
+			return
+		}
+		time.Sleep(time.Millisecond * 100)
+	}
+}
+
+func (r *Runner) updateProgress() {
+	//TODO: refactor to use a defined progress struct for future output modules
+	runningSecs := int((time.Now().Sub(r.startTime)) / time.Second)
+	var reqRate int
+	if runningSecs > 0 {
+		reqRate = int(r.counter / runningSecs)
+	} else {
+		reqRate = 0
+	}
+	dur := time.Now().Sub(r.startTime)
+	hours := dur / time.Hour
+	dur -= hours * time.Hour
+	mins := dur / time.Minute
+	dur -= mins * time.Minute
+	secs := dur / time.Second
+	totalProgress := r.conf.users.Total() * r.conf.passwds.Total()
+	progString := fmt.Sprintf(":: Progress: [%d/%d] :: %d tries/sec :: Duration: [%d:%02d:%02d] ::", r.counter, totalProgress, int(reqRate), hours, mins, secs)
+	fmt.Fprintf(os.Stderr, "%s%s", TERMINAL_CLEAR_LINE, progString)
+}
+
 func (r *Runner) RunTask(username []byte, password []byte) {
 	options := smb.Options{
 		Host:     r.conf.host,
@@ -75,10 +113,11 @@ func (r *Runner) RunTask(username []byte, password []byte) {
 	defer session.Close()
 
 	if session.IsAuthenticated {
-		fmt.Printf(" [*] In hacker voice *I'm in* // Username: %s // Password: %s\n", username, password)
+		fmt.Printf("%s [*] In hacker voice *I'm in* // Username: %s // Password: %s\n", TERMINAL_CLEAR_LINE, username, password)
 	}
 }
 
 func (r *Runner) Stop() {
+	fmt.Printf("\n")
 	r.running = false
 }

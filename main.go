@@ -74,7 +74,7 @@ func main() {
 	flag.IntVar(&cliconf.threads, "t", 10, "Number of threads")
 	flag.StringVar(&cliconf.userFile, "u", "", "User wordlist")
 	flag.StringVar(&cliconf.pwdFile, "w", "", "Password list")
-	flag.StringVar(&cliconf.domain, "d", "", "Domain")
+	flag.StringVar(&cliconf.domain, "d", "WORKGROUP", "Domain")
 	flag.BoolVar(&cliconf.debug, "v", false, "Debug")
 	flag.Parse()
 	conf, err := createConfig(&cliconf)
