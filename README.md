@@ -34,18 +34,20 @@ $ godance -h 192.168.75.173 -u users.txt -w passwords.txt -d WORKGROUP -t 200
 ```
 Usage of godance:
   -d string
-    	Domain
+        Domain (default "WORKGROUP")
   -h string
-    	Target host
+        Target host
   -p int
-    	Target port (default 445)
+        Target port (default 445)
+  -s string
+        Sleep time in seconds (per thread)
   -t int
-    	Number of threads (default 20)
+        Number of threads (default 10)
   -u string
-    	User wordlist
-  -v	Debug
+        User wordlist
+  -v    Debug
   -w string
-    	Password list
+        Password list
 ```
 
 ## Installation

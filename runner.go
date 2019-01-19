@@ -53,6 +53,9 @@ func (r *Runner) Start() {
 				defer func() { <-limiter }()
 				defer wg.Done()
 				r.RunTask(nextUser, nextPassword)
+				if r.conf.sleep > 0 {
+					time.Sleep(time.Duration(r.conf.sleep*1000) * time.Millisecond)
+				}
 			}()
 		}
 		// Reset the pwd inputlist position
@@ -103,12 +106,12 @@ func (r *Runner) RunTask(username []byte, password []byte) {
 		Domain:   r.conf.domain,
 	}
 	session, err := smb.NewSession(options, r.conf.debug)
-	defer session.Close()
 	if err != nil {
 		errstr := fmt.Sprintf("%s", err)
 		if !strings.Contains(errstr, "Logon failed") {
-			fmt.Printf(" [!] Error: %s\n", err)
+			fmt.Printf("%s [!] Error: %s\n", TERMINAL_CLEAR_LINE, err)
 		}
+		return
 	}
 	defer session.Close()
 
